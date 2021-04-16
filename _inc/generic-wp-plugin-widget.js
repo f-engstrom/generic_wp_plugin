@@ -39,7 +39,7 @@ jQuery(document).ready(function ($) {
     $.post(MyAjax.ajaxurl, data, function (response) {
         var obj = jQuery.parseJSON(response);
 
-        $("#points").html(`<span>Loalty Points:</span> <strong>${obj.points}</strong>`);
+        $("#points").html(`<span>Loalty Points via Ajax:</span> <strong>${obj.points}</strong>`);
 
 
         console.log("click", response);

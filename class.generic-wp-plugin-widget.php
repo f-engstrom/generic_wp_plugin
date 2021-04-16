@@ -87,12 +87,17 @@ class GWP_Widget extends WP_Widget
                 echo $before_title . $title . $after_title;
             }
 
+                $current_user = wp_get_current_user();
+                $loyalty_points =  get_user_meta($current_user->ID, 'user_notes', true);
+
 
 
 
             ?>
 
-            <p id="points"><span>Loalty Points:</span></p>
+            <p>Loyalty points prerendered from database: <?php echo $loyalty_points; ?></p>
+
+            <p id="points"><span>Loalty Points via Ajax:</span></p>
 
 
             <br>

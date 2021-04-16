@@ -30,8 +30,39 @@ class GWP_Widget_Backend
 
         add_action('comment_post', array('GWP_Widget_Backend', 'add_comment_points'), 10, 2);
 
+        add_action( 'woocommerce_edit_account_form', array('GWP_Widget_Backend','iconic_print_user_frontend_fields'), 10 );
 
     }
+
+
+
+
+   public static function iconic_get_account_fields($loyalty_points) {
+
+
+
+        return apply_filters( 'iconic_account_fields', array(
+            'user_url' => array(
+                'type'        => 'text',
+                'label'       => __( 'Loyalty Points', 'generic-wp-plugin' ),
+                'placeholder' => __( $loyalty_points, 'generic-wp-plugin' ),
+                'required'    => true,
+            ),
+        ) );
+
+    }
+
+    public static function iconic_print_user_frontend_fields() {
+
+        $current_user = wp_get_current_user();
+        $loyalty_points =  get_user_meta(wp_get_current_user()->ID, 'user_notes', true);
+        $fields = self::iconic_get_account_fields($loyalty_points);
+
+        foreach ( $fields as $key => $field_args ) {
+            woocommerce_form_field( $key, $field_args );
+        }
+    }
+
 
 
     public static function add_comment_points($comment_ID, $comment_approved)
@@ -46,33 +77,39 @@ class GWP_Widget_Backend
 
                 $options = get_option('gwp_plugin_options');
 
-                wp_remote_get($options['api_url'] . '?woocomment=true' . '&userEmail=' . $current_user->user_email);
+                $response = wp_remote_get($options['api_url'] . '?woocomment=true' . '&userEmail=' . $current_user->user_email);
                 //$http_code = wp_remote_retrieve_response_code($response);
 
 
-                //    if (!is_wp_error($response) && ($response['response']['code'] === 200 || $response['response']['code'] === 201)) {
-                //
-                //
-                //        $data = json_decode(wp_remote_retrieve_body($response));
-                //        $nps = $data->nps;
-                //        $nps_date = $data->latest_nps;
-                //
-                //        $arr = array('nps_score' => $nps, 'nps_date' => $nps_date, 'email' => $email);
-                //
-                //
-                //        echo json_encode($arr);
-                //    } else {
-                //
-                //        if (is_wp_error($response)) {
-                //
-                //            //printf( __( '<p> The date was %s </p>'), $response );
-                //
-                //            echo $response->get_error_message();
-                //        }
-                //    }
-                //
+                if (!is_wp_error($response) && ($response['response']['code'] === 200 || $response['response']['code'] === 201)) {
 
-              //  die(); // this is required to return a proper result
+                    $data = json_decode(wp_remote_retrieve_body($response));
+                    $points_on_bosbec = $data->points;
+
+                    $loyalty_points = get_user_meta($current_user->ID, 'user_loyalty_points', true);
+                    if (isset($loyalty_points)) {
+                        //if we saved already more the one notes
+                        $loyalty_points = $points_on_bosbec;
+                        update_user_meta($current_user->ID, 'user_notes', $loyalty_points);
+                    }
+                    if (!isset($loyalty_points)) {
+                        //first note we are saving fr this user
+                        update_user_meta($current_user->ID, 'user_notes', $loyalty_points);
+                     }
+
+
+                } else {
+
+                    if (is_wp_error($response)) {
+
+                        //printf( __( '<p> The date was %s </p>'), $response );
+
+                        echo $response->get_error_message();
+                    }
+                }
+
+
+                // die(); // this is required to return a proper result
 
 
             }
