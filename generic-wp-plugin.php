@@ -1,7 +1,7 @@
 <?php
 
 /**
- * 
+ *
  */
 /*
 Plugin Name: Generic WP Plugin nr 1
@@ -34,8 +34,8 @@ Copyright 2005-2015 Bosse.
 
 // Make sure we don't expose any info if called directly
 if (!function_exists('add_action')) {
-	echo 'Hi there!  I\'m just a plugin, not much I can do when called directly.';
-	exit;
+    echo 'Hi there!  I\'m just a plugin, not much I can do when called directly.';
+    exit;
 }
 
 define('GWP__VERSION', '1.0.0');
@@ -49,6 +49,6 @@ add_action('init', array('GWP_Widget_Backend', 'init'));
 
 
 if (is_admin() || (defined('WP_CLI') && WP_CLI)) {
-	require_once(GWP__PLUGIN_DIR . 'class.generic-wp-plugin-admin.php');
-	add_action('init', array('GWP_Admin', 'init'));
+    require_once(GWP__PLUGIN_DIR . 'class.generic-wp-plugin-admin.php');
+    add_action('init', array('GWP_Admin', 'init'));
 }

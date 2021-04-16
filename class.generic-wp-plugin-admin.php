@@ -14,15 +14,15 @@ class GWP_Admin
 
     public static function dbi_render_plugin_settings_page()
     {
-?>
+        ?>
         <h2>Example Plugin Settings</h2>
         <form action="options.php" method="post">
             <?php
             settings_fields('gwp_plugin_options');
             do_settings_sections('gwp_plugin'); ?>
-            <input name="submit" class="button button-primary" type="submit" value="<?php esc_attr_e('Save'); ?>" />
+            <input name="submit" class="button button-primary" type="submit" value="<?php esc_attr_e('Save'); ?>"/>
         </form>
-<?php
+        <?php
     }
 
     public static function dbi_register_settings()

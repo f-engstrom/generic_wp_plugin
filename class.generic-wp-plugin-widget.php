@@ -12,13 +12,13 @@ class GWP_Widget extends WP_Widget
     public function __construct()
     {
         $widget_ops = array(
-            'class'            =>    'gwp_widget',
-            'description'    =>    __('A widget to do generic-wp-plugin things', 'generic-wp-plugin')
+            'class' => 'gwp_widget',
+            'description' => __('A widget to do generic-wp-plugin things', 'generic-wp-plugin')
         );
 
         parent::__construct(
             'gwp_widget',            //base id
-            __('generic-wp-plugin', 'generic-wp-plugin'),    //title
+            __('Generic WP Plugin', 'generic-wp-plugin'),    //title
             $widget_ops
         );
     }
@@ -26,39 +26,41 @@ class GWP_Widget extends WP_Widget
 
     /**
      * Displaying the widget on the back-end
-     * @param  array $instance An instance of the widget
+     * @param array $instance An instance of the widget
      */
     public function form($instance)
     {
-        $widget_defaults = array(
-            'title'            =>    'Something generic-wp-plugin',
-            'number_events'    =>    5
-        );
-
-        $instance  = wp_parse_args((array) $instance, $widget_defaults);
-?>
-
-        <!-- Rendering the widget form in the admin -->
+        $title = !empty($instance['title']) ? $instance['title'] : esc_html__('New title', 'text_domain');
+        $rndNr = !empty($instance['rndNr']) ? $instance['rndNr'] : 9;
+        ?>
         <p>
-            Här kan man ha ett widget formulär
+            <label for="<?php echo esc_attr($this->get_field_id('title')); ?>"><?php esc_attr_e('Title:', 'text_domain'); ?></label>
+            <input class="widefat" id="<?php echo esc_attr($this->get_field_id('title')); ?>"
+                   name="<?php echo esc_attr($this->get_field_name('title')); ?>" type="text"
+                   value="<?php echo esc_attr($title); ?>">
         </p>
-
-    <?php
+        <p>
+            <label for="<?php echo esc_attr($this->get_field_id('rndNr')); ?>"><?php esc_attr_e('Rnd Nr:', 'text_domain'); ?></label>
+            <input class="widefat" id="<?php echo esc_attr($this->get_field_id('rndNr')); ?>"
+                   name="<?php echo esc_attr($this->get_field_name('rndNr')); ?>" type="text"
+                   value="<?php echo esc_attr($rndNr); ?>">
+        </p>
+        <?php
     }
 
 
     /**
      * Making the widget updateable
-     * @param  array $new_instance New instance of the widget
-     * @param  array $old_instance Old instance of the widget
+     * @param array $new_instance New instance of the widget
+     * @param array $old_instance Old instance of the widget
      * @return array An updated instance of the widget
      */
     public function update($new_instance, $old_instance)
     {
-        $instance = $old_instance;
+        $instance = array();
+        $instance['title'] = (!empty($new_instance['title'])) ? sanitize_text_field($new_instance['title']) : '';
+        $instance['rndNr'] = (!empty($new_instance['rndNr'])) ? $new_instance['rndNr'] : '';
 
-        $instance['title'] = $new_instance['title'];
-        $instance['number_events'] = $new_instance['number_events'];
 
         return $instance;
     }
@@ -66,54 +68,73 @@ class GWP_Widget extends WP_Widget
 
     /**
      * Displaying the widget on the front-end
-     * @param  array $args     Widget options
-     * @param  array $instance An instance of the widget
+     * @param array $args Widget options
+     * @param array $instance An instance of the widget
      */
     public function widget($args, $instance)
     {
 
         extract($args);
-        //        $title = apply_filters('widget_title', $instance['title']);
-        $title = apply_filters('widget_title', 'generic-wp-plugin');
+        $title = apply_filters('widget_title', $instance['title']);
+        $rndNr = $instance['rndNr'];
+        // $title = apply_filters('widget_title', 'generic-wp-plugin');
 
 
-
-
-        //Preparing to show the events
-        echo $before_widget;
-        if ($title) {
-            echo $before_title . $title . $after_title;
-        }
-
-        if (isset($_POST['submit'])) {
-        }
-
-    ?>
-
-
-        <p id="searched_email"><span>Email:</span></p>
-        <p id="nps_score"><span>Score:</span< /p>
-                <p id="nps_date"><span>Date:</span< /p>
-                        <p>
-                            <label for="db_sub_name">Email Adress</label>
-                            <input type="text" name="db_sub_name" id="email" value="" placeholder="Enter your email adress">
-                        </p>
-
-                        <br>
-
-                        <button id="postButton">Lookup score</button>
-
-
-
-
-                <?php
-
-                echo $after_widget;
+        if (is_user_logged_in()) {
+            //Preparing to show the events
+            echo $before_widget;
+            if ($title) {
+                echo $before_title . $title . $after_title;
             }
-        }
 
-        function gwp_register_widget()
-        {
-            register_widget('GWP_Widget');
+
+
+
+            ?>
+
+            <p id="points"><span>Loalty Points:</span></p>
+
+
+            <br>
+
+
+
+            <?php
+
+            echo $after_widget;
+
+
+        } else {
+
+
+            echo $before_widget;
+            if ($title) {
+                echo $before_title . $title . $after_title;
+            }
+
+
+
+
+            ?>
+
+            <p>Become an member and start collecting points!</p>
+
+
+            <?php
+
+            echo $after_widget;
+
+
         }
-        add_action('widgets_init', 'gwp_register_widget');
+    }
+
+
+}
+
+
+function gwp_register_widget()
+{
+    register_widget('GWP_Widget');
+}
+
+add_action('widgets_init', 'gwp_register_widget');
